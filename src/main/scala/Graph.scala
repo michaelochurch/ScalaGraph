@@ -12,13 +12,15 @@ object Utils {
   }
 }
 
-type Name = UUID
-
 object Name {
+  type T = UUID
+  
   def make() = {
     UUID.randomUUID
   }
 }
+
+import Name.{T => Name}
 
 abstract class Node {
   val id : Name
