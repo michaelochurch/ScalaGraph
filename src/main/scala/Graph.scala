@@ -1,5 +1,4 @@
 import java.lang.StringBuilder
-import java.util.UUID
 
 import scala.collection.mutable
 import scala.collection.JavaConverters._
@@ -14,25 +13,6 @@ abstract class Edge {
   val id : Name
   val source : Name
   val dest : Name
-}
-
-case class Payload(typ:Option[String], data:Map[String,String])
-
-case class PayloadDelta(data:Map[String,Option[String]])
-
-object Payload {
-  def empty = new Payload(None, Map())
-
-  def add(payload:Payload, delta:PayloadDelta) = {
-    val newData = 
-      Utils.mergeMaps(payload.data, delta.data)(
-	(_:String, v1Opt:Option[String], v2Opt:Option[Option[String]]) => 
-	  v2Opt match {
-	    case None => v1Opt
-	    case Some(v2) => v2
-	  })
-    new Payload(payload.typ, newData)
-  }
 }
 
 class BaseNode(val payload: Payload) extends Node {
