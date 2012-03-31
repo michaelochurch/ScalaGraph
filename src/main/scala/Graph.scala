@@ -118,12 +118,24 @@ trait Graph[NodeT <: Node, EdgeT <: Edge] {
   def getNode(nodeId:Name):Option[NodeT]
   def getEdge(edgeId:Name):Option[EdgeT]
 
-  //def outEdges(nodeId:Name):Iterable[NodeT]
-  //def inEdges(nodeId:Name):Iterable[NodeT]
+  def outEdges(nodeId:Name):Set[EdgeT]
+  def inEdges(nodeId:Name):Set[EdgeT]
 }
+
+// NodeFilter is essentially (NodeT => Boolean) so it's contravariant.  
+abstract class NodeFilter[-NodeT]
+case object TrueNF extends NodeFilter[Any]
+case class NodeIdIn(ids:Set[Name]) extends NodeFilter[Any]
+
+// Note: not all Queries are supported on all graphs. 
+abstract class Query[NodeT, EdgeT]
+case class FindNodes[NodeT, EdgeT](nodeFilter:NodeFilter[NodeT]) extends Query[NodeT, EdgeT]
+//case class FollowEdges(q:Query, edgeFilter:EdgeFilter, depth:Option[Int] = Some(1)) extends Query[NodeT, EdgeT]
 
 // ResultGraph: small, immutable graph indexed by IDs only. 
 // Used as a return type from computations and searches. 
+
+class QueryNotSupported(query:Query[_,_], graphType:String) extends Exception
 
 class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeColl:Iterable[EdgeT]) extends Graph[NodeT, EdgeT] {
   private val nodes = nodeColl.map(node => (node.id, node)).toMap
@@ -157,8 +169,30 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
     edges.get(edgeId)
   }
 
+  def outEdges(nodeId:Name):Set[EdgeT] = {
+    // For ResultGraph, O(n) in number of edges. 
+    edges.values.filter(edge => edge.source == nodeId).toSet
+  }
+
+  def inEdges(nodeId:Name):Set[EdgeT] = {
+    // For ResultGraph, O(n) in number of edges.
+    edges.values.filter(edge => edge.dest == nodeId).toSet
+  }
+
   def print():Unit = {
     println(this.toStringLongform)
+  }
+
+  def search(q:Query[NodeT, EdgeT]):ResultGraph[NodeT, EdgeT] = {
+    q match {
+      case FindNodes(nf) => nf match {
+	case TrueNF => new ResultGraph(nodes.values, Set.empty)
+	case NodeIdIn(ids) => 
+	  new ResultGraph(nodes.values.filter(n => ids.contains(n.id)), 
+			  Set.empty)
+	case _ => throw new QueryNotSupported(q, "ResultGraph")
+      }
+    }
   }
 
   private def tuple() = (nodes, edges)
@@ -298,7 +332,7 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] {
     new ResultGraph(nodes.values, edges.values)
   }
 
-  def print() = {
+  def print():Unit = {
     toResultGraph.print()
   }
 }
