@@ -50,13 +50,17 @@ comparison) is used. Case-insensitive comparisons and numeric field
 values I will support in the future. I18n (variations in conventions of
 alphabetical order) may be supported in the future.
 
-Untyped payloads shouldn't be used in real-world cases. The reason for
-this structure is that it's unreasonable to impose "bondage-and-
-discipline" static typing on all systems (many distributed) for which
-this library will be applied.
+STYLE NOTE: Untyped payloads shouldn't be used in real-world cases. 
 
-For testing, when one only cares about the shape of the graph, untyped
-or empty payloads can be used. 
+The reason for using the labelled-record type is that it's
+unreasonable to impose "bondage-and-discipline" static typing on all
+systems (many distributed) for which this library might be used. At
+least for now, it's up to the user to enforce type/schema safety. The
+type field indicates the schema (on the Map[String, String] data) that
+should apply.
+
+For testing purposes, where one only cares about the shape of the
+graph, untyped or empty payloads will be used.
 
 A NODE has a unique id. Almost all Node types will have a Payload
 attached.
@@ -64,7 +68,7 @@ attached.
 The reference implementation, BaseNode, has an id (Name) and a Payload
 only.
 
-An EDGE has three name fields-- id, source, and dest. That is, the
+An EDGE has three Name fields-- id, source, and dest. That is, the
 structural type of the abstract Edge is:
 
 {val id: Name, val source: Name, val dest:Name}.
@@ -91,10 +95,10 @@ The purpose of the ResultGraph is to be returned as a result of
 computations over much larger graphs. Generally, ResultGraphs should
 be small and human-usable. Future expansions may include:
 
-* Visualization for ResultGraphs.  
+* Visualization for ResultGraphs. (p = 0.7/3 months)
 * Path-finding within ResultGraphs (since they're immutable and
-  generally small).
-* Support for AI/ML algorithms over ResultGraphs. 
+  generally small). (p = 0.9/3 months)
+* Support for AI/ML algorithms over ResultGraphs. (p = 0.3/3 months)
 
 ResultGraphs do not have indexes, except over the Name of each Node
 and Edge. 
