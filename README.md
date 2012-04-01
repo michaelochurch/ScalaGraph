@@ -1,4 +1,6 @@
-... an open source Graph library in Scala. 
+# ScalaGraph
+
+An open source Graph library in Scala. 
 
 Michael O. Church
 last updated 31. March 2012
@@ -6,7 +8,7 @@ last updated 31. March 2012
 The goal of this library is to provide a high-quality, open-source,
 general-purpose Graph library in Scala. 
 
-1. CORE TERMS
+## CORE TERMS
 
 A GRAPH is a set of NODES (vertices) which are first-class entities,
 along with a set of EDGES that represent relationships between
@@ -25,11 +27,11 @@ temperature is at least 70 F (node property)."
 As graph query (pseudocode, because I haven't decided on a Q. language
 yet):
 
-FindNodes(T == "city" & name == "new york") |-> 
-    FollowEdges(T == "flight" & cost < 400) |-> 
-    FilterNodes(T == "city" & "winterTemp" > 70)
+    FindNodes(T == "city" & name == "new york") |-> 
+        FollowEdges(T == "flight" & cost < 400) |-> 
+        FilterNodes(T == "city" & "winterTemp" > 70)
 
-2. GRAPH COMPONENTS
+## GRAPH COMPONENTS
 
 Graphs come in a variety of sizes and types. Some graphs are small and
 can be visualized. Others are so large they must be distributed. Some
@@ -71,7 +73,7 @@ only.
 An EDGE has three Name fields-- id, source, and dest. That is, the
 structural type of the abstract Edge is:
 
-{val id: Name, val source: Name, val dest:Name}.
+    {val id: Name, val source: Name, val dest:Name}.
 
 The reference implementation, BaseEdge, also has a Payload. 
 
@@ -81,7 +83,7 @@ are signified by writing new edges, and in which queries pull the
 'best' edge, which may change over time) are something I'd like to
 support in the future.
 
-3. GRAPH TYPES
+## GRAPH TYPES
 
 For a start, I'm going to focus on a couple core graph types. I intend
 for these graphs to be parameterized over NodeT <: Node and EdgeT <:
@@ -89,7 +91,7 @@ Edge-- this means that they can be specialized to specific types of
 nodes and edges. For now, the only NodeT that exists is BaseNode and
 the only EdgeT is BaseEdge.
 
-3A. ResultGraph: a small, immutable graph. 
+### ResultGraph: a small, immutable graph. 
 
 The purpose of the ResultGraph is to be returned as a result of
 computations over much larger graphs. Generally, ResultGraphs should
@@ -103,16 +105,16 @@ be small and human-usable. Future expansions may include:
 ResultGraphs do not have indexes, except over the Name of each Node
 and Edge. 
 
-3B. MutableInMemoryGraph: the first large graph. 
+### MutableInMemoryGraph: the first large graph. 
 
 This graph's purpose is to hold larger amounts of data. It will
 support search operations and indexes. 
 
-4. DATA FLOW OF SEARCHES
+## DATA FLOW OF SEARCHES
 
 The Data Flow of searches is going to look like the following.
 
-4A. Query: LargeGraph => ResultGraph
+### Query: LargeGraph => ResultGraph
 
 "LargeGraph" represents a graph type that may be distributed,
 disk-backed, append-only or fully mutable. Currently, the only large
@@ -125,7 +127,7 @@ of the query at that time. The reason for returning a ResultGraph
 types may involve network communication or disk reads/writes for each
 operation.
 
-4B. Using the ResultGraph. 
+### Using the ResultGraph. 
 
 For some queries, a graph is an appropriate. For example, the
 simplest searches ("find all nodes where <X>") will return a set of
