@@ -1,8 +1,6 @@
 case class PayloadDelta(data:Map[String,Option[String]])
 
 object Payload {
-  case class Delta(data:Map[String, Option[String]])
-
   def empty = new Payload(None, Map())
 }
 
