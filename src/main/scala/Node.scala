@@ -37,4 +37,7 @@ object BaseNode {
   def apply() = new BaseNode(Payload.empty)
 
   def apply(payload:Payload) = new BaseNode(payload)
+
+  def apply(typ:String, fields:Map[String, String]) =
+    new BaseNode(Payload(Option(typ), fields))
 }
