@@ -1,23 +1,17 @@
 import Name.{T => Name}
 
-trait Node {
-  type T
-  type Delta
-  
+trait Node[T, Delta] {
   val id : Name
   def +(delta:Delta):T
 }
 
 // Reference implementation for Node
-class BaseNode private (val payload: Payload, val id:Name) extends Node {
-  type T = BaseNode
-  type Delta = PayloadDelta
-
+class BaseNode private (val payload: Payload, val id:Name) extends Node[BaseNode, PayloadDelta] {
   def this(payload:Payload) {
     this(payload, Name.make())
   }
 
-  def +(delta:Delta):BaseNode = {
+  def +(delta:PayloadDelta):BaseNode = {
     new BaseNode(payload + delta, id)
   }
 
@@ -43,6 +37,8 @@ class BaseNode private (val payload: Payload, val id:Name) extends Node {
 }
 
 object BaseNode {
+  type Delta = PayloadDelta
+
   def apply() = new BaseNode(Payload.empty)
 
   def apply(payload:Payload) = new BaseNode(payload)
