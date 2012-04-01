@@ -4,7 +4,7 @@ import scala.collection.mutable
 
 import Name.{T => Name}
 
-trait Graph[NodeT <: Node[NodeT, _], EdgeT <: Edge] {
+trait Graph[NodeT <: Node, EdgeT <: Edge] {
   def getNode(nodeId:Name):Option[NodeT]
   def getEdge(edgeId:Name):Option[EdgeT]
 
@@ -27,7 +27,7 @@ case class FindNodes[NodeT, EdgeT](nodeFilter:NodeFilter[NodeT]) extends Query[N
 
 class QueryNotSupported(query:Query[_,_], graphType:String) extends Exception
 
-class ResultGraph[NodeT <: Node[NodeT, _], EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeColl:Iterable[EdgeT]) extends Graph[NodeT, EdgeT] {
+class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeColl:Iterable[EdgeT]) extends Graph[NodeT, EdgeT] {
   private val nodes = nodeColl.map(node => (node.id, node)).toMap
   private val edges = edgeColl.map(edge => (edge.id, edge)).toMap
 
@@ -104,7 +104,7 @@ class ResultGraph[NodeT <: Node[NodeT, _], EdgeT <: Edge] (nodeColl:Iterable[Nod
   }
 }
 
-class MutableInMemoryGraph[NodeDelta, NodeT <: Node[NodeT, NodeDelta], EdgeT <: Edge] {
+class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] {
   private val nodes = mutable.Map[Name, NodeT]()
   private val edges = mutable.Map[Name, EdgeT]()
 
@@ -163,16 +163,6 @@ class MutableInMemoryGraph[NodeDelta, NodeT <: Node[NodeT, NodeDelta], EdgeT <: 
 	case None => false
       }
     } else false
-  }
-
-  def updateNode(nodeId:Name, delta:NodeDelta) = {
-    nodes.get(nodeId) match {
-      case Some(node) => {
-	nodes(nodeId) = node + delta
-	true
-      }
-      case None => false
-    }
   }
 
   def toResultGraph():ResultGraph[NodeT, EdgeT] = {

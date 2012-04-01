@@ -1,26 +1,14 @@
 import Name.{T => Name}
 
 trait Edge {
-  type T
-  type Delta
-
   val id : Name
   val source : Name
   val dest : Name
-
-  def +(delta:Delta):T
 }
 
 class BaseEdge private (val payload: Payload, val source:Name, val dest:Name, val id:Name) extends Edge {
-  type T = BaseEdge
-  type Delta = PayloadDelta
-
   def this(payload:Payload, source:Name, dest:Name) = {
     this(payload, source, dest, Name.make())
-  }
-
-  def +(delta:Delta):BaseEdge = {
-    new BaseEdge(payload + delta, source, dest, id)
   }
 
   private def tuple() = {

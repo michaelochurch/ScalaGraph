@@ -1,18 +1,13 @@
 import Name.{T => Name}
 
-trait Node[T, Delta] {
+trait Node {
   val id : Name
-  def +(delta:Delta):T
 }
 
 // Reference implementation for Node
-class BaseNode private (val payload: Payload, val id:Name) extends Node[BaseNode, PayloadDelta] {
+class BaseNode private (val payload: Payload, val id:Name) extends Node {
   def this(payload:Payload) {
     this(payload, Name.make())
-  }
-
-  def +(delta:PayloadDelta):BaseNode = {
-    new BaseNode(payload + delta, id)
   }
 
   private def tuple() = {
