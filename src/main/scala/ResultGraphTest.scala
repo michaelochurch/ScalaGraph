@@ -1,3 +1,5 @@
+import scala.collection.mutable
+
 // TODO(michaelochurch): Either learn a Java test framework
 // (e.g. JUnit) or build something like my 'expect macro'.
 
@@ -10,52 +12,60 @@ object ResultGraphTest {
   def nodeId(i:Int) = nodes(i).id
   def edgeId(i:Int) = edges(i).id
 
-  def createNodesAndEdges() = {
-    for(i <- 0 to 4) {
-      nodes(i) = BaseNode("testNode", Map("x" -> i.toString))
+  val graphs = mutable.Map[String, ResultGraphBase]()
+  
+  def setUp() = {
+    def createNodesAndEdges() = {
+      for(i <- 0 to 4) {
+	nodes(i) = BaseNode("testNode", Map("x" -> i.toString))
+      }
+      edges(0) = BaseEdge(nodeId(0), nodeId(1), "testEdge")
+      edges(1) = BaseEdge(nodeId(0), nodeId(3), "testEdge")
+      edges(2) = BaseEdge(nodeId(1), nodeId(0), "testEdge")
     }
-    edges(0) = BaseEdge(nodeId(0), nodeId(1), "testEdge")
-    edges(1) = BaseEdge(nodeId(0), nodeId(3), "testEdge")
-    edges(2) = BaseEdge(nodeId(1), nodeId(0), "testEdge")
+    
+    createNodesAndEdges()
+    // main: A valid graph with 5 nodes and 3 edges.
+    graphs("main") = new ResultGraph(nodes, edges)
+    // invalid: contains edges "to nowhere", i.e. with nodes not in the graph.
+    graphs("invalid") = new ResultGraph(nodes.tail, edges)
   }
 
-  def validateGraph(graph:ResultGraphBase) = {
-    graph.validate()
+  def testValidateGraph() = {
+    graphs("main").validate()
   }
 
-  def testGetNode(graph:ResultGraphBase) = {
+  def testGetNode() = {
     for(i <- 0 to 4) {
-      assert(graph.getNode(nodeId(i)) == Some(nodes(i)))
+      assert(graphs("main").getNode(nodeId(i)) == Some(nodes(i)))
     }
     val badId = Name.make()
-    assert(graph.getNode(badId) == None)
+    assert(graphs("main").getNode(badId) == None)
   }
 
-  def testGetEdge(graph:ResultGraphBase) = {
+  def testGetEdge() = {
     for(i <- 0 to 2) {
-      assert(graph.getEdge(edgeId(i)) == Some(edges(i)))
+      assert(graphs("main").getEdge(edgeId(i)) == Some(edges(i)))
     }
     val badId = Name.make()
-    assert(graph.getNode(badId) == None)
+    assert(graphs("main").getNode(badId) == None)
   }
 
-  def testOutEdges(graph:ResultGraphBase) = {
-    assert(graph.outEdges(nodeId(0)) == Set(edges(0), edges(1)))
-    assert(graph.outEdges(nodeId(1)) == Set(edges(2)))
-    assert(graph.outEdges(nodeId(3)) == Set())
+  def testOutEdges() = {
+    assert(graphs("main").outEdges(nodeId(0)) == Set(edges(0), edges(1)))
+    assert(graphs("main").outEdges(nodeId(1)) == Set(edges(2)))
+    assert(graphs("main").outEdges(nodeId(3)) == Set())
   }
 
-  def testInEdges(graph:ResultGraphBase) = {
-    assert(graph.inEdges(nodeId(0)) == Set(edges(2)))
-    assert(graph.inEdges(nodeId(3)) == Set(edges(1)))
-    assert(graph.inEdges(nodeId(4)) == Set())
+  def testInEdges() = {
+    assert(graphs("main").inEdges(nodeId(0)) == Set(edges(2)))
+    assert(graphs("main").inEdges(nodeId(3)) == Set(edges(1)))
+    assert(graphs("main").inEdges(nodeId(4)) == Set())
   }
 
-  def testValidateFailCase() = {
+  def testValidateFailureCase() = {
     try {
-      // badGraph is bad because it has edges whose nodes aren't in it. 
-      val badGraph = new ResultGraph(nodes.tail, edges)
-      badGraph.validate()
+      graphs("invalid").validate()
       throw new Exception("supposed to fail")
     }
     catch {
@@ -64,14 +74,15 @@ object ResultGraphTest {
   }
 
   def runTests() = {
-    createNodesAndEdges()
-    val graph = new ResultGraph(nodes, edges)
-    validateGraph(graph)
-    testGetNode(graph)
-    testGetEdge(graph)
-    testOutEdges(graph)
-    testInEdges(graph)
-    testValidateFailCase()
+    setUp()
+    
+    testValidateGraph()
+    testGetNode()
+    testGetEdge()
+    testOutEdges()
+    testInEdges()
+    testValidateFailureCase()
+
     println("ResultGraphTest: PASSED")
   }
 

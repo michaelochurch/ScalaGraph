@@ -5,12 +5,20 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
   private val nodes = nodeColl.map(node => (node.id, node)).toMap
   private val edges = edgeColl.map(edge => (edge.id, edge)).toMap
 
-  def validate():Boolean = {
-    edges.values.forall(edge => nodes.contains(edge.source) 
-			          && nodes.contains(edge.dest))
-  }
+  private var validation = None : Option[Boolean]
 
-  require(validate())
+  def validate():Unit = {
+    val result = 
+      edges.values.forall(edge => nodes.contains(edge.source) 
+			  && nodes.contains(edge.dest))
+    if (result) {
+      validation = Some(true)
+    }
+    else {
+      validation = Some(false)
+      throw new ValidationException("ResultGraph")
+    }
+  }
 
   def toStringLongform():String = {
     val builder = new StringBuilder()
@@ -62,7 +70,13 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
   private def tuple() = (nodes, edges)
 
   override def toString() = {
-    "ResultGraph: %d nodes, %d edges".format(nodes.size, edges.size)
+    val validationString = validation match {
+      case None => "(not validated)"
+      case Some(true) => "(validated)"
+      case Some(false) => "(FAILED validation)"
+    }
+    "ResultGraph: %d nodes, %d edges %s".format(nodes.size, edges.size,
+						validationString)
   }
 
   override def hashCode() = {

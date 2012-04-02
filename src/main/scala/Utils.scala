@@ -4,4 +4,16 @@ object Utils {
     val allKeys = m1.keySet union m2.keySet
     allKeys.flatMap(k => f(k, m1.get(k), m2.get(k)).map(v => (k, v))).toMap
   }
+
+  abstract sealed class MayFail[+T]
+  sealed case class Failure(x:Throwable) extends MayFail
+  sealed case class Success[+T](x:T) extends MayFail[T]
+
+  def mayFail[T](body : => T) {
+    try {
+      Success(body)
+    } catch {
+      case (t:Throwable) => Failure(t)
+    }
+  } 
 }
