@@ -6,9 +6,9 @@ trait Edge {
   val dest : Name
 }
 
-class BaseEdge private (val payload: Payload, val source:Name, val dest:Name, val id:Name) extends Edge {
-  def this(payload:Payload, source:Name, dest:Name) = {
-    this(payload, source, dest, Name.make())
+class BaseEdge private (val source:Name, val dest:Name, val payload: Payload, val id:Name) extends Edge {
+  def this(source:Name, dest:Name, payload:Payload) = {
+    this(source, dest, payload, Name.make())
   }
 
   private def tuple() = {
@@ -35,10 +35,14 @@ class BaseEdge private (val payload: Payload, val source:Name, val dest:Name, va
 
 object BaseEdge {
   def apply(source:Name, dest:Name) = {
-    new BaseEdge(Payload.empty, source, dest)
+    new BaseEdge(source, dest, Payload.empty)
   }
 
-  def apply(p:Payload, source:Name, dest:Name) = {
-    new BaseEdge(p, source, dest)
+  def apply(source:Name, dest:Name, payload:Payload) = {
+    new BaseEdge(source, dest, payload)
+  }
+
+  def apply(source:Name, dest:Name, typ:String, data:Map[String, String] = Map()) = {
+    new BaseEdge(source, dest, Payload(Option(typ), data))
   }
 }
