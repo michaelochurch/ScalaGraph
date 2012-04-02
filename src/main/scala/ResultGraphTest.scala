@@ -1,7 +1,6 @@
 import scala.collection.mutable
 
-// TODO(michaelochurch): Either learn a Java test framework
-// (e.g. JUnit) or build something like my 'expect macro'.
+import TestEase._
 
 object ResultGraphTest {
   type ResultGraphBase = ResultGraph[BaseNode, BaseEdge]
@@ -64,12 +63,8 @@ object ResultGraphTest {
   }
 
   def testValidateFailureCase() = {
-    try {
+    exnClass("ValidationException") {
       graphs("invalid").validate()
-      throw new Exception("supposed to fail")
-    }
-    catch {
-      case (e:IllegalArgumentException) => // OK
     }
   }
 
