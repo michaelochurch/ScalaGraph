@@ -62,6 +62,21 @@ object ResultGraphTest {
     assert(graphs("main").inEdges(nodeId(4)) == Set())
   }
 
+  def testSearch() = {
+    // 1. NodeFilter TrueNF matches all nodes.
+    assert(graphs("main").search(FindNodes(TrueNF)) ==
+      new ResultGraph(nodes, Set.empty))
+
+    // 2. NodeFilter FalseNF matches no nodes. 
+    assert(graphs("main").search(FindNodes(FalseNF)) ==
+      new ResultGraph(Set.empty, Set.empty))
+
+    // 3. NodeIdIn returns nodes w/ matching IDs.
+    val nf = NodeIdIn(Set(0, 2, 4).map(i => nodeId(i)))
+    assert(graphs("main").search(FindNodes(nf)) == 
+      new ResultGraph(Set(0, 2, 4).map(i => nodes(i)), Set.empty))
+  }
+
   def testValidateFailureCase() = {
     exnClass("ValidationException") {
       graphs("invalid").validate()
@@ -72,11 +87,13 @@ object ResultGraphTest {
     setUp()
     
     testValidateGraph()
+    testValidateFailureCase()
+
     testGetNode()
     testGetEdge()
     testOutEdges()
     testInEdges()
-    testValidateFailureCase()
+    testSearch()
 
     println("ResultGraphTest: PASSED")
   }

@@ -30,6 +30,7 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] {
     val sourceId = edge.source
     val destId = edge.dest
 
+    // TODO(mike): return a better error.
     require(nodeExists(sourceId) && nodeExists(destId))
 
     edgesBySource.add(edge.source, edge.id)

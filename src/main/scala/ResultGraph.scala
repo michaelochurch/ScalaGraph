@@ -1,6 +1,9 @@
 import Name.{T => Name}
 import java.lang.StringBuilder
 
+// ResultGraph: small, immutable graph indexed by IDs only. 
+// Used as a return type from computations and searches. 
+
 class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeColl:Iterable[EdgeT]) extends Graph[NodeT, EdgeT] {
   private val nodes = nodeColl.map(node => (node.id, node)).toMap
   private val edges = edgeColl.map(edge => (edge.id, edge)).toMap
@@ -59,6 +62,7 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
     q match {
       case FindNodes(nf) => nf match {
 	case TrueNF => new ResultGraph(nodes.values, Set.empty)
+	case FalseNF => new ResultGraph(Set.empty, Set.empty)
 	case NodeIdIn(ids) => 
 	  new ResultGraph(nodes.values.filter(n => ids.contains(n.id)), 
 			  Set.empty)
