@@ -1,4 +1,5 @@
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 import TestEase._
 
@@ -16,11 +17,12 @@ object ResultGraphTest {
   def setUp() = {
     def createNodesAndEdges() = {
       for(i <- 0 to 4) {
-	nodes(i) = BaseNode("testNode", Map("x" -> i.toString))
+	val nodeType = if (i % 2 == 0) "evenNode" else "oddNode"
+	nodes(i) = BaseNode(nodeType, Map("x" -> i.toString))
       }
-      edges(0) = BaseEdge(nodeId(0), nodeId(1), "testEdge")
-      edges(1) = BaseEdge(nodeId(0), nodeId(3), "testEdge")
-      edges(2) = BaseEdge(nodeId(1), nodeId(0), "testEdge")
+      edges(0) = BaseEdge(nodeId(0), nodeId(1), "evenEdge")
+      edges(1) = BaseEdge(nodeId(0), nodeId(3), "oddEdge")
+      edges(2) = BaseEdge(nodeId(1), nodeId(0), "evenEdge")
     }
     
     createNodesAndEdges()
@@ -72,8 +74,12 @@ object ResultGraphTest {
       new ResultGraph(Set.empty, Set.empty))
 
     // 3. NodeIdIn returns nodes w/ matching IDs.
-    val nf = NodeIdIn(Set(0, 2, 4).map(i => nodeId(i)))
-    assert(graphs("main").search(FindNodes(nf)) == 
+    val nfIds = NodeIdIn(Set(1, 2, 4).map(i => nodeId(i)))
+    assert(graphs("main").search(FindNodes(nfIds)) == 
+      new ResultGraph(Set(1, 2, 4).map(i => nodes(i)), Set.empty))
+
+    val nfEven = NodeTypeIn("evenNode")
+    assert(graphs("main").search(FindNodes(nfEven)) ==
       new ResultGraph(Set(0, 2, 4).map(i => nodes(i)), Set.empty))
   }
 

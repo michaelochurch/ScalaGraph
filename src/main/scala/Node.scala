@@ -2,6 +2,7 @@ import Name.{T => Name}
 
 trait Node {
   val id : Name
+  def getType() : Option[String]
 }
 
 // Reference implementation for Node
@@ -9,6 +10,8 @@ class BaseNode private (val payload: Payload, val id:Name) extends Node {
   def this(payload:Payload) {
     this(payload, Name.make())
   }
+
+  def getType() = payload.typ
 
   private def tuple() = {
     (id, payload)

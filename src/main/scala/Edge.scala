@@ -4,12 +4,16 @@ trait Edge {
   val id : Name
   val source : Name
   val dest : Name
+
+  def getType() : Option[String]
 }
 
 class BaseEdge private (val source:Name, val dest:Name, val payload: Payload, val id:Name) extends Edge {
   def this(source:Name, dest:Name, payload:Payload) = {
     this(source, dest, payload, Name.make())
   }
+
+  def getType() = payload.typ
 
   private def tuple() = {
     (id, source, dest, payload)

@@ -3,6 +3,7 @@ import java.lang.StringBuilder
 
 // ResultGraph: small, immutable graph indexed by IDs only. 
 // Used as a return type from computations and searches. 
+// No optimizations for fast Queries, since it's intended for small graphs. 
 
 class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeColl:Iterable[EdgeT]) extends Graph[NodeT, EdgeT] {
   private val nodes = nodeColl.map(node => (node.id, node)).toMap
@@ -66,6 +67,15 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
 	case NodeIdIn(ids) => 
 	  new ResultGraph(nodes.values.filter(n => ids.contains(n.id)), 
 			  Set.empty)
+	case NodeTypeIn(types@_*) => {
+	  val typeSet = types.toSet
+	  val resultNodes = 
+	    nodes.values.filter(n => n.getType match {
+	      case Some(t) => typeSet.contains(t)
+	      case None => false
+	    })
+	  new ResultGraph(resultNodes, Set.empty)
+	}
 	case _ => throw new QueryNotSupported(q, "ResultGraph")
       }
     }
