@@ -6,6 +6,7 @@ trait Edge {
   val dest : Name
 
   def getType() : Option[String]
+  def getField(fieldName:String) : Option[String]
 }
 
 class BaseEdge private (val source:Name, val dest:Name, val payload: Payload, val id:Name) extends Edge {
@@ -14,6 +15,8 @@ class BaseEdge private (val source:Name, val dest:Name, val payload: Payload, va
   }
 
   def getType() = payload.typ
+
+  def getField(fieldName:String) = payload.data.get(fieldName)
 
   private def tuple() = {
     (id, source, dest, payload)

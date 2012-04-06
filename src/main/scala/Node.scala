@@ -3,6 +3,7 @@ import Name.{T => Name}
 trait Node {
   val id : Name
   def getType() : Option[String]
+  def getField(fieldName:String) : Option[String]
 }
 
 // Reference implementation for Node
@@ -12,6 +13,8 @@ class BaseNode private (val payload: Payload, val id:Name) extends Node {
   }
 
   def getType() = payload.typ
+
+  def getField(fieldName:String) = payload.data.get(fieldName)
 
   private def tuple() = {
     (id, payload)

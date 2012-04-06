@@ -59,25 +59,30 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
     println(this.toStringLongform)
   }
 
+  private def findNodes(nodeFilter:NodeFilter[NodeT]) = {
+    new ResultGraph(nodes.values.filter(nodeFilter), Set.empty[EdgeT])
+  }
+
+  private def followEdgesFrom(g:ResultGraph[NodeT,EdgeT],
+			      edgeFilter:EdgeFilter[EdgeT],
+			      nodeFilter:NodeFilter[NodeT],
+			      depth:Option[Int]) = {
+    throw new Exception("not implemented")
+  }
+
+  private def followEdges(q:Query[NodeT, EdgeT],
+			  edgeFilter:EdgeFilter[EdgeT], 
+			  nodeFilter:NodeFilter[NodeT],
+			  depth:Option[Int]) = {
+    followEdgesFrom(search(q),
+		    edgeFilter, nodeFilter, depth)
+  }
+
   def search(q:Query[NodeT, EdgeT]):ResultGraph[NodeT, EdgeT] = {
     q match {
-      case FindNodes(nf) => nf match {
-	case TrueNF => new ResultGraph(nodes.values, Set.empty)
-	case FalseNF => new ResultGraph(Set.empty, Set.empty)
-	case NodeIdIn(ids) => 
-	  new ResultGraph(nodes.values.filter(n => ids.contains(n.id)), 
-			  Set.empty)
-	case NodeTypeIn(types@_*) => {
-	  val typeSet = types.toSet
-	  val resultNodes = 
-	    nodes.values.filter(n => n.getType match {
-	      case Some(t) => typeSet.contains(t)
-	      case None => false
-	    })
-	  new ResultGraph(resultNodes, Set.empty)
-	}
-	case _ => throw new QueryNotSupported(q, "ResultGraph")
-      }
+      case FindNodes(nodeFilter) => findNodes(nodeFilter)
+      case FollowEdges(q, edgeFilter, nodeFilter, depth) => 
+	followEdges(q, edgeFilter, nodeFilter, depth)
     }
   }
 
