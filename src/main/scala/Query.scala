@@ -30,11 +30,15 @@ case class NodeTypeIn[-NodeT <: Node](types:String*) extends NodeFilter[NodeT] {
   }
 }
 
-abstract class EdgeFilter[-EdgeT]
-case object TrueEF extends EdgeFilter[Any]
-case object FalseEF extends EdgeFilter[Any]
-case class EdgeIdIn(ids:Set[Name]) extends EdgeFilter[Any]
-case class EdgeTypeIn[-EdgeT](types:String*) extends EdgeFilter[EdgeT]
+abstract class EdgeFilter[-EdgeT <: Edge] extends Function1[EdgeT, Boolean]
+case object TrueEF extends EdgeFilter[Edge] {
+  def apply(e:Edge) = true
+}
+case object FalseEF extends EdgeFilter[Edge] {
+  def apply(e:Edge) = false
+}
+// case class EdgeIdIn(ids:Set[Name]) extends EdgeFilter[Any]
+// case class EdgeTypeIn[-EdgeT](types:String*) extends EdgeFilter[EdgeT]
 
 // Note: not all Queries are supported on all graphs. 
 abstract class Query[NodeT, EdgeT]

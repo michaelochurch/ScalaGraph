@@ -38,6 +38,7 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] {
     edge.id
   }
 
+  //TODO(michaelochurch): The no-op cases should throw an error. A better one. 
   def deleteEdge(edgeId:Name):Boolean = {
     edges.get(edgeId) match {
       case Some(edge) => {

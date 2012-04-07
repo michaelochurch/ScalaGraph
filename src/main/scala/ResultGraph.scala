@@ -67,7 +67,44 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
 			      edgeFilter:EdgeFilter[EdgeT],
 			      nodeFilter:NodeFilter[NodeT],
 			      depth:Option[Int]) = {
-    throw new Exception("not implemented")
+    def fail() = {
+      throw new Exception("inconsistent graph")
+    }
+
+    // TODO(michaelochurch): refactor the huge function. 
+    def loop(unexploredNodeIds:Set[Name],
+	     exploredNodeIds:Set[Name],
+	     allNodes:Set[NodeT],
+	     allEdges:Set[EdgeT],
+	     depth:Int):ResultGraph[NodeT,EdgeT] = {
+      if (depth == 0 || unexploredNodeIds.isEmpty) {
+	new ResultGraph(allNodes, allEdges)
+      }
+      else {
+	def nodeAndEdgeFilter(edge:EdgeT):Option[(EdgeT, NodeT)] = {
+	  if (edgeFilter(edge)) {
+	    val node = getNode(edge.dest).getOrElse(fail())
+	    if (nodeFilter(node)) {
+	      Some((edge, node))
+	    } else None	  
+	  } else None
+	}
+	val outEdgeIds = unexploredNodeIds.flatMap(outEdges(_))
+	val matches = outEdgeIds.flatMap(nodeAndEdgeFilter)
+	val newNodes = matches.map(_._2)
+	val nowExplored = exploredNodeIds ++ unexploredNodeIds
+	loop(newNodes.map(_.id) -- nowExplored, 
+	     nowExplored,
+	     allNodes ++ newNodes,
+	     allEdges ++ matches.map(_._1),
+	     depth - 1)
+      }
+    }
+    loop(unexploredNodeIds = g.nodes.keySet, 
+	 exploredNodeIds = Set.empty, 
+	 allNodes = g.nodes.values.toSet,
+	 allEdges = g.edges.values.toSet,
+	 depth = depth.getOrElse(-1))
   }
 
   private def followEdges(q:Query[NodeT, EdgeT],
