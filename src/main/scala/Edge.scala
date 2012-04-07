@@ -15,7 +15,6 @@ class BaseEdge private (val source:Name, val dest:Name, val payload: Payload, va
   }
 
   def getType() = payload.typ
-
   def getField(fieldName:String) = payload.data.get(fieldName)
 
   private def tuple() = {

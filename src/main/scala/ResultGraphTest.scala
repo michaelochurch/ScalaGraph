@@ -64,7 +64,7 @@ object ResultGraphTest {
     assert(graphs("main").inEdges(nodeId(4)) == Set())
   }
 
-  def testSearch() = {
+  def testSearchNodesOnly() = {
     // 1. NodeFilter TrueNF matches all nodes.
     assert(graphs("main").search(FindNodes(TrueNF)) ==
       new ResultGraph(nodes, Set.empty))
@@ -78,9 +78,45 @@ object ResultGraphTest {
     assert(graphs("main").search(FindNodes(nfIds)) == 
       new ResultGraph(Set(1, 2, 4).map(i => nodes(i)), Set.empty))
 
+    // 4. NodeTypeIn returns nodes of matching types. 
     val nfEven = NodeTypeIn("evenNode")
     assert(graphs("main").search(FindNodes(nfEven)) ==
       new ResultGraph(Set(0, 2, 4).map(i => nodes(i)), Set.empty))
+  }
+
+  def testSearchNodesAndEdges() = {
+    val nfOdd = NodeTypeIn("oddNode")
+    val efEven = EdgeTypeIn("evenEdge")
+    
+    // 1. Odd Nodes |-> Odd Edges => {N1, N3, N0 | E2}
+    assert(graphs("main").search(FollowEdges(FindNodes(nfOdd),
+					     efEven)) ==
+      new ResultGraph(Set(0, 1, 3).map(i => nodes(i)),
+		      Set(edges(2))))
+
+    // 2. Node N1 |-> all Edges => {N0, N1 | E2}
+    val nfId1 = NodeIdIn(Set(nodeId(1)))
+    assert(graphs("main").search(FollowEdges(FindNodes(nfId1))) ==
+      new ResultGraph(Set(0, 1).map(i => nodes(i)),
+		      Set(edges(2))))
+
+    // 3. Same search but w/ 2-ply FollowEdges => {N0, N1, N3 | E2, E1, E0}
+    assert(graphs("main").search(FollowEdges(FindNodes(nfId1),
+					     TrueEF, TrueNF, Some(2))) ==
+      new ResultGraph(Set(0, 1, 3).map(i => nodes(i)),
+		      Set(0, 1, 2).map(i => edges(i))))
+
+    // 4. Same search with no ply limit => same. (Termination test.)
+    assert(graphs("main").search(FollowEdges(FindNodes(nfId1),
+					     TrueEF, TrueNF, None)) ==
+      new ResultGraph(Set(0, 1, 3).map(i => nodes(i)),
+		      Set(0, 1, 2).map(i => edges(i))))
+    // TODO(): long linear graph to test ~100-ply. 
+  }
+
+  def testSearch() = {
+    testSearchNodesOnly()
+    testSearchNodesAndEdges()
   }
 
   def testValidateFailureCase() = {

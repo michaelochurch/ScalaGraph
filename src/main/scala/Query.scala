@@ -38,13 +38,23 @@ case object FalseEF extends EdgeFilter[Edge] {
   def apply(e:Edge) = false
 }
 // case class EdgeIdIn(ids:Set[Name]) extends EdgeFilter[Any]
-// case class EdgeTypeIn[-EdgeT](types:String*) extends EdgeFilter[EdgeT]
+case class EdgeTypeIn[-EdgeT <: Edge](types:String*) extends EdgeFilter[EdgeT] {
+  val typeSet = types.toSet
+  
+  def apply(e:EdgeT) = {
+    e.getType() match {
+      case Some(t) => typeSet.contains(t)
+      case None => false
+    }
+  }
+}
 
 // Note: not all Queries are supported on all graphs. 
 abstract class Query[NodeT, EdgeT]
 case class FindNodes[NodeT <: Node, EdgeT <: Edge](nodeFilter:NodeFilter[NodeT]) extends Query[NodeT, EdgeT]
 case class FollowEdges[NodeT <: Node, EdgeT <: Edge](
-  q:Query[NodeT, EdgeT], edgeFilter:EdgeFilter[EdgeT], 
+  q:Query[NodeT, EdgeT], 
+  edgeFilter:EdgeFilter[EdgeT] = TrueEF, 
   nodeFilter:NodeFilter[NodeT] = TrueNF, 
   depth:Option[Int] = Some(1)) extends Query[NodeT, EdgeT]
 
