@@ -1,5 +1,6 @@
 import Name.{T => Name}
 import java.lang.StringBuilder
+import scala.collection.mutable
 
 // ResultGraph: small, immutable graph indexed by IDs only. 
 // Used as a return type from computations and searches. 
@@ -144,6 +145,37 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
       // Be mindful of type erasure here. 
       case (graph:ResultGraph[_, _]) => graph.tuple == this.tuple
       case _ => false
+    }
+  }
+
+  def saveToFile(filename:String) = {
+    val writer = Serialization.objectWriter(filename)
+    try {
+      val nNodes = nodes.size
+      val nEdges = edges.size
+      Serialization.writeGraphSize(writer, nodes.size, edges.size)
+      for (node <- nodes.values) {
+	Serialization.writeNode(writer, node)
+      }
+      for (edge <- edges.values) {
+	Serialization.writeEdge(writer, edge)
+      }
+    } finally {
+      writer.close()
+    }
+  }
+}
+
+object ResultGraph {
+  def loadFromFile[NodeT <: Node, EdgeT <: Edge](filename:String) = {
+    val reader = Serialization.objectReader(filename) 
+    try {
+      val (nNodes, nEdges) = Serialization.readGraphSize(reader)
+      val nodes = (1 to nNodes).map(_ => Serialization.readNode[NodeT](reader))
+      val edges = (1 to nEdges).map(_ => Serialization.readEdge[EdgeT](reader))
+      new ResultGraph[NodeT, EdgeT](nodes, edges)
+    } finally {
+      reader.close()
     }
   }
 }

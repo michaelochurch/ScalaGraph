@@ -3,6 +3,9 @@ import scala.collection.mutable.ArrayBuffer
 
 import TestEase._
 
+//TODO(moc): This test should be abstracted to work on
+//any Graph type. 
+
 object ResultGraphTest {
   type ResultGraphBase = ResultGraph[BaseNode, BaseEdge]
 
@@ -30,6 +33,13 @@ object ResultGraphTest {
     graphs("main") = new ResultGraph(nodes, edges)
     // invalid: contains edges "to nowhere", i.e. with nodes not in the graph.
     graphs("invalid") = new ResultGraph(nodes.tail, edges)
+  }
+
+  def testSerialization() = {
+    val filename = TempFile.name()
+    graphs("main").saveToFile(filename)
+    val g2 = ResultGraph.loadFromFile[BaseNode, BaseEdge](filename)
+    assert(graphs("main") == g2)
   }
 
   def testValidateGraph() = {
@@ -128,6 +138,8 @@ object ResultGraphTest {
   def runTests() = {
     setUp()
     
+    testSerialization()
+
     testValidateGraph()
     testValidateFailureCase()
 

@@ -1,6 +1,6 @@
 import Name.{T => Name}
 
-trait Edge {
+trait Edge extends Serializable {
   val id : Name
   val source : Name
   val dest : Name

@@ -1,6 +1,6 @@
 import Name.{T => Name}
 
-trait Node {
+trait Node extends Serializable {
   val id : Name
   def getType() : Option[String]
   def getField(fieldName:String) : Option[String]
@@ -38,8 +38,6 @@ class BaseNode private (val payload: Payload, val id:Name) extends Node {
 }
 
 object BaseNode {
-  type Delta = PayloadDelta
-
   def apply() = new BaseNode(Payload.empty)
 
   def apply(payload:Payload) = new BaseNode(payload)
