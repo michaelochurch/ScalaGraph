@@ -6,6 +6,12 @@
 // Scala. Mostly experimental.
 
 object TestEase {
+  var testing = false
+
+  def inTest() = {
+    testing = true
+  }
+
   abstract sealed class MayFail[+T]
   sealed case class Failure(x:Throwable) extends MayFail
   sealed case class Success[+T](x:T) extends MayFail[T]
