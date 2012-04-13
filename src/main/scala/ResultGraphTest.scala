@@ -3,20 +3,31 @@ import scala.collection.mutable.ArrayBuffer
 
 import TestEase._
 
-//TODO(moc): This test should be abstracted to work on
-//any Graph type. 
-
 object ResultGraphTest {
   def runTests() = {
+    TestEase.inTest()
+
     val graphTester = new GraphTest(ResultGraph.basic)
-    graphTester.go()
+    val graphs = graphTester.go()
     
-    // TODO(): test validation. 
-    
-    println("ResultGraphTest: PASSED")
+    val graphsDir = "src/main/resources"
+    val invalidFilename = "%s/invalid.graph".format(graphsDir)
+
+    val invalidGraph = 
+      ResultGraph.loadFromFile[BaseNode, BaseEdge](invalidFilename)
+
+    def testValidation() = {
+      graphs("small").validate()
+      exnClass("ValidationException") {
+        invalidGraph.validate()
+      }
+    }
+
+    testValidation()
   }
 
-  def main(args:Array[String]) = {
+  def main(args:Array[String] = Array()) = {
     runTests()
+    println("ResultGraphTest: PASSED")
   }
 }

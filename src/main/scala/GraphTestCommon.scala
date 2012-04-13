@@ -16,7 +16,6 @@ class GraphTest[GraphT <: Graph[BaseNode, BaseEdge, GraphT]](empty:GraphT) {
 
   def setUp():Unit = {
     graphs("small") = loadGraph("%s/small.graph".format(graphsDir))
-    graphs("invalid") = loadGraph("%s/invalid.graph".format(graphsDir))
     graphs("linear") = loadGraph("%s/linear.graph".format(graphsDir))
   }
 
@@ -141,9 +140,12 @@ class GraphTest[GraphT <: Graph[BaseNode, BaseEdge, GraphT]](empty:GraphT) {
     testSearch()
   }
 
-  def go() = {
+  // returns the graphs that were tested, for further (graph-specific)
+  // testing if needed. 
+  def go():Map[String, GraphT] = {
     setUp()
     serializationTest()
     smallGraphTests()
+    Map() ++ graphs
   }
 }
