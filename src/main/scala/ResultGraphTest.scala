@@ -23,9 +23,9 @@ object ResultGraphTest {
 	val nodeType = if (i % 2 == 0) "evenNode" else "oddNode"
 	nodes(i) = BaseNode(nodeType, Map("x" -> i.toString))
       }
-      edges(0) = BaseEdge(nodeId(0), nodeId(1), "evenEdge")
-      edges(1) = BaseEdge(nodeId(0), nodeId(3), "oddEdge")
-      edges(2) = BaseEdge(nodeId(1), nodeId(0), "evenEdge")
+      edges(0) = BaseEdge(nodeId(0), nodeId(1), "evenEdge", Map[String, String]())
+      edges(1) = BaseEdge(nodeId(0), nodeId(3), "oddEdge", Map[String, String]())
+      edges(2) = BaseEdge(nodeId(1), nodeId(0), "evenEdge", Map[String, String]())
     }
     
     createNodesAndEdges()
