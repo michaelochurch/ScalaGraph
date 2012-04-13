@@ -59,6 +59,9 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
     edgesBySource.lookup(nodeId).map(edges(_))
   }
 
+  // addNode and addEdge return the ID for convenience, because some 
+  // chains of operations might build a node/edge (with unknown ID).
+
   def addNode(node:NodeT):Name = {
     nodes += (node.id -> node)
     node.id
@@ -70,37 +73,37 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
     val destId = edge.dest
 
     // TODO(mike): return a better error.
-    require(nodeExists(sourceId) && nodeExists(destId))
+    if (!nodeExists(sourceId) || !nodeExists(destId))
+      throw new IllegalGraphOperationException("MutableInMemoryGraph.addEdge")
 
     edgesBySource.add(edge.source, edge.id)
     edgesByDest.add(edge.dest, edge.id)
     edge.id
   }
 
-  //TODO(michaelochurch): The no-op cases should throw an error. A better one. 
-  def deleteEdge(edgeId:Name):Boolean = {
+  def deleteEdge(edgeId:Name):Unit = {
     edges.get(edgeId) match {
       case Some(edge) => {
         edgesBySource.remove(edge.source, edge.id)
         edgesByDest.remove(edge.dest, edge.id)
         edges -= edgeId
-        true
       }
-      case None => false
+      case None =>
     }
   }
 
-  def deleteNode(nodeId:Name):Boolean = {
+  def deleteNode(nodeId:Name):Unit = {
     if (edgesBySource.lookup(nodeId).isEmpty && 
         edgesByDest.lookup(nodeId).isEmpty) {
       nodes.get(nodeId) match {
         case Some(node) => {
           nodes -= nodeId
-          true
         }
-        case None => false
+        case None =>
       }
-    } else false
+    } else {
+      throw new IllegalGraphOperationException("MutableInMemoryGraph.deleteNode")
+    }
   }
 
   def toResultGraph():ResultGraph[NodeT, EdgeT] = {

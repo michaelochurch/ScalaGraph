@@ -2,6 +2,8 @@ import Name.{T => Name}
 
 class GraphTooLargeException(msg:String) extends Exception(msg)
 class ValidationException(msg:String) extends Exception(msg)
+class IllegalGraphOperationException(msg:String) extends Exception(msg)
+class Rule34Exception(msg:String) extends Exception(msg)
 
 trait Graph[NodeT <: Node, EdgeT <: Edge, T] {
   def getNode(nodeId:Name):Option[NodeT]
