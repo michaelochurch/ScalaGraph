@@ -88,6 +88,10 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
     toResultGraph.print()
   }
 
+  def search(q:Query[NodeT, EdgeT]) = {
+    throw new Exception("not impl!")
+  }
+
   override def toString() = {
     "MutableInMemoryGraph: %d nodes, %d edges".format(nodes.size, edges.size)
   }

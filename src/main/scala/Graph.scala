@@ -9,6 +9,8 @@ trait Graph[NodeT <: Node, EdgeT <: Edge, T] {
   def outEdges(nodeId:Name):Set[EdgeT]
   def inEdges(nodeId:Name):Set[EdgeT]
 
+  def search(q:Query[NodeT, EdgeT]):ResultGraph[NodeT, EdgeT]
+
   // If the Graph is immutable, loadFromFile returns a new graph.
   // If it's mutable, loadFromFile adds all nodes and edges in that file, 
   // and returns the graph itself. 
