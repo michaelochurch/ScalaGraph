@@ -1,12 +1,28 @@
 import Name.{T => Name}
 import scala.collection.mutable
 
-class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] {
+class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, EdgeT, MutableInMemoryGraph[NodeT, EdgeT]] {
   private val nodes = mutable.Map[Name, NodeT]()
   private val edges = mutable.Map[Name, EdgeT]()
 
   private val edgesBySource = new Index[Name, Name]()
   private val edgesByDest = new Index[Name, Name]()
+
+  def saveToFile(filename:String) = {
+    sys.error("not impl")
+  }
+
+  def loadFromFile(filename:String) = {
+    sys.error("not impl")
+  }
+
+  def inEdges(nodeId:Name) = {
+    sys.error("not impl")
+  }
+
+  def outEdges(nodeId:Name) = {
+    sys.error("not impl")
+  }
 
   def getNode(nodeId:Name):Option[NodeT] = {
     nodes.get(nodeId)
