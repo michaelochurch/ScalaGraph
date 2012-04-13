@@ -1,3 +1,17 @@
+object MutableInMemoryGraphTest {
+  def runTests() = {
+    TestEase.inTest()
+
+    val graphTester = new GraphTest(MutableInMemoryGraph.basic)
+    val graphs = graphTester.go()
+  }
+
+  def main(args:Array[String] = Array()) = {
+    runTests()
+    println("MutableInMemoryGraphTest: PASSED")
+  }
+}
+
 object Test {
   def addNodeAndRetrieveIt() = {
     val g = new MutableInMemoryGraph[BaseNode,BaseEdge]()

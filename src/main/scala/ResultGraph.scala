@@ -125,6 +125,8 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
                     edgeFilter, nodeFilter, depth)
   }
 
+  def toResultGraph() = this
+
   def search(q:Query[NodeT, EdgeT]):ResultGraph[NodeT, EdgeT] = {
     q match {
       case FindNodes(nodeFilter) => findNodes(nodeFilter)
@@ -159,8 +161,6 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
   def saveToFile(filename:String) = {
     val writer = Serialization.objectWriter(filename)
     try {
-      val nNodes = nodes.size
-      val nEdges = edges.size
       Serialization.writeGraphSize(writer, nodes.size, edges.size)
       for (node <- nodes.values) {
         Serialization.writeNode(writer, node)

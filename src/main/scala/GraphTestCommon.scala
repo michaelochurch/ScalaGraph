@@ -23,7 +23,7 @@ class GraphTest[GraphT <: Graph[BaseNode, BaseEdge, GraphT]](empty:GraphT) {
     val filename = TempFile.name()
     graphs("small").saveToFile(filename)
     val g2 = loadGraph(filename)
-    assert(graphs("small") == g2)
+    assert(graphs("small").toResultGraph == g2.toResultGraph)
   }
 
   def smallGraphTests():Unit = {

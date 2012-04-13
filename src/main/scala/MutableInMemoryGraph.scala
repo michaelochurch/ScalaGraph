@@ -1,8 +1,6 @@
 import Name.{T => Name}
 import scala.collection.mutable
 
-// DO NOT USE. Too many stubs.
-
 class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, EdgeT, MutableInMemoryGraph[NodeT, EdgeT]] {
   private val nodes = mutable.Map[Name, NodeT]()
   private val edges = mutable.Map[Name, EdgeT]()
@@ -11,19 +9,34 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
   private val edgesByDest = new Index[Name, Name]()
 
   def saveToFile(filename:String) = {
-    sys.error("not impl")
+    val writer = Serialization.objectWriter(filename)
+    try {
+      Serialization.writeGraphSize(writer, nodes.size, edges.size)
+      for (node <- nodes.values) {
+        Serialization.writeNode(writer, node)
+      }
+      for (edge <- edges.values) {
+        Serialization.writeEdge(writer, edge)
+      } 
+    } finally {
+      writer.close()
+    }
   }
 
   def loadFromFile(filename:String) = {
-    sys.error("not impl")
-  }
-
-  def inEdges(nodeId:Name) = {
-    sys.error("not impl")
-  }
-
-  def outEdges(nodeId:Name) = {
-    sys.error("not impl")
+    val reader = Serialization.objectReader(filename)
+    try {
+      val (nNodes, nEdges) = Serialization.readGraphSize(reader)
+      for (i <- (1 to nNodes)) {
+        addNode(Serialization.readNode[NodeT](reader))
+      }
+      for (i <- (1 to nEdges)) {
+        addEdge(Serialization.readEdge[EdgeT](reader))
+      }
+      this
+    } finally {
+      reader.close()
+    }
   }
 
   def getNode(nodeId:Name):Option[NodeT] = {
@@ -36,6 +49,14 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
 
   def getEdge(edgeId:Name):Option[EdgeT] = {
     edges.get(edgeId)
+  }
+
+  def inEdges(nodeId:Name) = {
+    edgesByDest.lookup(nodeId).map(edges(_))
+  }
+
+  def outEdges(nodeId:Name) = {
+    edgesBySource.lookup(nodeId).map(edges(_))
   }
 
   def addNode(node:NodeT):Name = {
@@ -83,7 +104,11 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
   }
 
   def toResultGraph():ResultGraph[NodeT, EdgeT] = {
-    new ResultGraph(nodes.values, edges.values)
+    if (nodes.size > 1000000 || edges.size > 1000000) {
+      throw new GraphTooLargeException("MutableInMemoryGraph.toResultGraph")
+    } else {
+      new ResultGraph(nodes.values, edges.values)
+    }
   }
 
   def print():Unit = {
@@ -97,4 +122,14 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
   override def toString() = {
     "MutableInMemoryGraph: %d nodes, %d edges".format(nodes.size, edges.size)
   }
+}
+
+object MutableInMemoryGraph {
+  def empty[NodeT <: Node, EdgeT <: Edge]() =
+    new MutableInMemoryGraph[NodeT, EdgeT]()
+  
+  def basic = empty[BaseNode, BaseEdge] 
+
+  def loadFromFile[NodeT <: Node, EdgeT <: Edge](filename:String) = 
+    empty[NodeT, EdgeT].loadFromFile(filename)
 }

@@ -1,5 +1,6 @@
 import Name.{T => Name}
 
+class GraphTooLargeException(msg:String) extends Exception(msg)
 class ValidationException(msg:String) extends Exception(msg)
 
 trait Graph[NodeT <: Node, EdgeT <: Edge, T] {
@@ -8,6 +9,9 @@ trait Graph[NodeT <: Node, EdgeT <: Edge, T] {
 
   def outEdges(nodeId:Name):Set[EdgeT]
   def inEdges(nodeId:Name):Set[EdgeT]
+
+  // For testing, but not to be used on large graphs. 
+  def toResultGraph():ResultGraph[NodeT, EdgeT]
 
   def search(q:Query[NodeT, EdgeT]):ResultGraph[NodeT, EdgeT]
 
