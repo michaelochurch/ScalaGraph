@@ -6,11 +6,20 @@ import scala.collection.mutable
 // Used as a return type from computations and searches. 
 // No optimizations for fast Queries, since it's intended for small graphs. 
 
-class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeColl:Iterable[EdgeT]) extends Graph[NodeT, EdgeT] {
-  private val nodes = nodeColl.map(node => (node.id, node)).toMap
-  private val edges = edgeColl.map(edge => (edge.id, edge)).toMap
+class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeColl:Iterable[EdgeT]) extends Graph[NodeT, EdgeT, ResultGraph[NodeT, EdgeT]] {
+  val nodes = nodeColl.map(node => (node.id, node)).toMap
+  val edges = edgeColl.map(edge => (edge.id, edge)).toMap
 
   private var validation = None : Option[Boolean]
+
+  def this() = {
+    this(Set.empty, Set.empty)
+  }
+
+  // Returns a *new* ResultGraph. 
+  def loadFromFile(filename:String) = {
+    ResultGraph.loadFromFile(filename)
+  }
 
   def validate():Unit = {
     val result = 
@@ -142,7 +151,6 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
 
   override def equals(that:Any) = {
     that match {
-      // Be mindful of type erasure here. 
       case (graph:ResultGraph[_, _]) => graph.tuple == this.tuple
       case _ => false
     }
@@ -178,4 +186,9 @@ object ResultGraph {
       reader.close()
     }
   }
+
+  def empty[NodeT <: Node, EdgeT <: Edge]() = 
+    new ResultGraph[NodeT, EdgeT]()
+
+  def basic = empty[BaseNode, BaseEdge]
 }
