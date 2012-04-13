@@ -1,5 +1,5 @@
 import java.io.{FileInputStream, FileOutputStream, 
-		ObjectInputStream, ObjectOutputStream}
+                ObjectInputStream, ObjectOutputStream}
 
 object Serialization {
   def objectWriter(filename:String) = {

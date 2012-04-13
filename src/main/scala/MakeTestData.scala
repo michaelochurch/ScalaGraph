@@ -7,18 +7,18 @@ object MakeTestData {
     
     val nodes = nodeIds.zipWithIndex.map {
       case (nodeId, idx) => {
-	val typ = if (idx % 2 == 0) "evenNode" else "oddNode"
-	BaseNode(nodeId, typ, Map("x" -> idx.toString))
+        val typ = if (idx % 2 == 0) "evenNode" else "oddNode"
+        BaseNode(nodeId, typ, Map("x" -> idx.toString))
       }
     }
-					 
+                                         
     val edges = new Array[BaseEdge](3)
     edges(0) = BaseEdge(edgeIds(0), nodeIds(0), nodeIds(1), 
-			"evenEdge", Map[String, String]())
+                        "evenEdge", Map[String, String]())
     edges(1) = BaseEdge(edgeIds(1), nodeIds(0), nodeIds(3), 
-			"oddEdge", Map[String, String]())
+                        "oddEdge", Map[String, String]())
     edges(2) = BaseEdge(edgeIds(2), nodeIds(1), nodeIds(0), 
-			"evenEdge", Map[String, String]())
+                        "evenEdge", Map[String, String]())
 
     val smallGraph = new ResultGraph(nodes, edges)
     val smallGraphFilename = "%s/small.graph".format(targetDir)
@@ -39,13 +39,13 @@ object MakeTestData {
     
     val nodes = nodeIds.zipWithIndex.map {
       case (id, index) => 
-	BaseNode(id, "intNode", Map[String, String]("x" -> index.toString))
+        BaseNode(id, "intNode", Map[String, String]("x" -> index.toString))
     }
 
     val edges = edgeIds.zipWithIndex.map {
       case (id, index) =>
-	BaseEdge(id, nodeIds(index), nodeIds(index + 1),
-		 "intEdge", Map[String, String]("y" -> index.toString))
+        BaseEdge(id, nodeIds(index), nodeIds(index + 1),
+                 "intEdge", Map[String, String]("y" -> index.toString))
     }
 
     val linearGraph = new ResultGraph(nodes, edges)

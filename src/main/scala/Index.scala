@@ -22,9 +22,9 @@ class Index[K <% Ordered[K], V] {
     if (data.containsKey(k)) {
       val vs = data.get(k)
       if (vs == Set(v)) {
-	data.remove(k)
+        data.remove(k)
       } else {
-	data.put(k, vs - v)
+        data.put(k, vs - v)
       }
     }
   }
@@ -44,10 +44,10 @@ class Index[K <% Ordered[K], V] {
   def lookupRange(kLow:Option[K], kHigh:Option[K]):Iterable[V] = {
     val mutableSubmap = 
       (kLow, kHigh) match {
-	case (None, None) => data
-	case (None, Some(kH)) => data.headMap(kH)
-	case (Some(kL), None) => data.tailMap(kL)
-	case (Some(kL), Some(kH)) => data.subMap(kL, kH)
+        case (None, None) => data
+        case (None, Some(kH)) => data.headMap(kH)
+        case (Some(kL), None) => data.tailMap(kL)
+        case (Some(kL), Some(kH)) => data.subMap(kL, kH)
       }
     val submap = Map() ++ mutableSubmap.asScala 
     submap.flatMap({case (k, vs) => vs})

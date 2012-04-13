@@ -24,7 +24,7 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
   def validate():Unit = {
     val result = 
       edges.values.forall(edge => nodes.contains(edge.source) 
-			  && nodes.contains(edge.dest))
+                          && nodes.contains(edge.dest))
     if (result) {
       validation = Some(true)
     }
@@ -74,62 +74,62 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
   }
 
   private def followEdgesFrom(g:ResultGraph[NodeT,EdgeT],
-			      edgeFilter:EdgeFilter[EdgeT],
-			      nodeFilter:NodeFilter[NodeT],
-			      depth:Option[Int]) = {
+                              edgeFilter:EdgeFilter[EdgeT],
+                              nodeFilter:NodeFilter[NodeT],
+                              depth:Option[Int]) = {
     def fail() = {
       throw new Exception("inconsistent graph")
     }
 
     // TODO(michaelochurch): refactor the huge function. 
     def loop(unexploredNodeIds:Set[Name],
-	     exploredNodeIds:Set[Name],
-	     allNodes:Set[NodeT],
-	     allEdges:Set[EdgeT],
-	     depth:Int):ResultGraph[NodeT,EdgeT] = {
+             exploredNodeIds:Set[Name],
+             allNodes:Set[NodeT],
+             allEdges:Set[EdgeT],
+             depth:Int):ResultGraph[NodeT,EdgeT] = {
       if (depth == 0 || unexploredNodeIds.isEmpty) {
-	new ResultGraph(allNodes, allEdges)
+        new ResultGraph(allNodes, allEdges)
       }
       else {
-	def nodeAndEdgeFilter(edge:EdgeT):Option[(EdgeT, NodeT)] = {
-	  if (edgeFilter(edge)) {
-	    val node = getNode(edge.dest).getOrElse(fail())
-	    if (nodeFilter(node)) {
-	      Some((edge, node))
-	    } else None	  
-	  } else None
-	}
-	val outEdgeIds = unexploredNodeIds.flatMap(outEdges(_))
-	val matches = outEdgeIds.flatMap(nodeAndEdgeFilter)
-	val newNodes = matches.map(_._2)
-	val nowExplored = exploredNodeIds ++ unexploredNodeIds
-	loop(newNodes.map(_.id) -- nowExplored, 
-	     nowExplored,
-	     allNodes ++ newNodes,
-	     allEdges ++ matches.map(_._1),
-	     depth - 1)
+        def nodeAndEdgeFilter(edge:EdgeT):Option[(EdgeT, NodeT)] = {
+          if (edgeFilter(edge)) {
+            val node = getNode(edge.dest).getOrElse(fail())
+            if (nodeFilter(node)) {
+              Some((edge, node))
+            } else None          
+          } else None
+        }
+        val outEdgeIds = unexploredNodeIds.flatMap(outEdges(_))
+        val matches = outEdgeIds.flatMap(nodeAndEdgeFilter)
+        val newNodes = matches.map(_._2)
+        val nowExplored = exploredNodeIds ++ unexploredNodeIds
+        loop(newNodes.map(_.id) -- nowExplored, 
+             nowExplored,
+             allNodes ++ newNodes,
+             allEdges ++ matches.map(_._1),
+             depth - 1)
       }
     }
     loop(unexploredNodeIds = g.nodes.keySet, 
-	 exploredNodeIds = Set.empty, 
-	 allNodes = g.nodes.values.toSet,
-	 allEdges = g.edges.values.toSet,
-	 depth = depth.getOrElse(-1))
+         exploredNodeIds = Set.empty, 
+         allNodes = g.nodes.values.toSet,
+         allEdges = g.edges.values.toSet,
+         depth = depth.getOrElse(-1))
   }
 
   private def followEdges(q:Query[NodeT, EdgeT],
-			  edgeFilter:EdgeFilter[EdgeT], 
-			  nodeFilter:NodeFilter[NodeT],
-			  depth:Option[Int]) = {
+                          edgeFilter:EdgeFilter[EdgeT], 
+                          nodeFilter:NodeFilter[NodeT],
+                          depth:Option[Int]) = {
     followEdgesFrom(search(q),
-		    edgeFilter, nodeFilter, depth)
+                    edgeFilter, nodeFilter, depth)
   }
 
   def search(q:Query[NodeT, EdgeT]):ResultGraph[NodeT, EdgeT] = {
     q match {
       case FindNodes(nodeFilter) => findNodes(nodeFilter)
       case FollowEdges(q, edgeFilter, nodeFilter, depth) => 
-	followEdges(q, edgeFilter, nodeFilter, depth)
+        followEdges(q, edgeFilter, nodeFilter, depth)
     }
   }
 
@@ -142,7 +142,7 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
       case Some(false) => "(FAILED validation)"
     }
     "ResultGraph: %d nodes, %d edges %s".format(nodes.size, edges.size,
-						validationString)
+                                                validationString)
   }
 
   override def hashCode() = {
@@ -163,10 +163,10 @@ class ResultGraph[NodeT <: Node, EdgeT <: Edge] (nodeColl:Iterable[NodeT], edgeC
       val nEdges = edges.size
       Serialization.writeGraphSize(writer, nodes.size, edges.size)
       for (node <- nodes.values) {
-	Serialization.writeNode(writer, node)
+        Serialization.writeNode(writer, node)
       }
       for (edge <- edges.values) {
-	Serialization.writeEdge(writer, edge)
+        Serialization.writeEdge(writer, edge)
       }
     } finally {
       writer.close()

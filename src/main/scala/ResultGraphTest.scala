@@ -20,8 +20,8 @@ object ResultGraphTest {
   def setUp() = {
     def createNodesAndEdges() = {
       for(i <- 0 to 4) {
-	val nodeType = if (i % 2 == 0) "evenNode" else "oddNode"
-	nodes(i) = BaseNode(nodeType, Map("x" -> i.toString))
+        val nodeType = if (i % 2 == 0) "evenNode" else "oddNode"
+        nodes(i) = BaseNode(nodeType, Map("x" -> i.toString))
       }
       edges(0) = BaseEdge(nodeId(0), nodeId(1), "evenEdge", Map[String, String]())
       edges(1) = BaseEdge(nodeId(0), nodeId(3), "oddEdge", Map[String, String]())
@@ -100,27 +100,27 @@ object ResultGraphTest {
     
     // 1. Odd Nodes |-> Odd Edges => {N1, N3, N0 | E2}
     assert(graphs("main").search(FollowEdges(FindNodes(nfOdd),
-					     efEven)) ==
+                                             efEven)) ==
       new ResultGraph(Set(0, 1, 3).map(i => nodes(i)),
-		      Set(edges(2))))
+                      Set(edges(2))))
 
     // 2. Node N1 |-> all Edges => {N0, N1 | E2}
     val nfId1 = NodeIdIn(Set(nodeId(1)))
     assert(graphs("main").search(FollowEdges(FindNodes(nfId1))) ==
       new ResultGraph(Set(0, 1).map(i => nodes(i)),
-		      Set(edges(2))))
+                      Set(edges(2))))
 
     // 3. Same search but w/ 2-ply FollowEdges => {N0, N1, N3 | E2, E1, E0}
     assert(graphs("main").search(FollowEdges(FindNodes(nfId1),
-					     TrueEF, TrueNF, Some(2))) ==
+                                             TrueEF, TrueNF, Some(2))) ==
       new ResultGraph(Set(0, 1, 3).map(i => nodes(i)),
-		      Set(0, 1, 2).map(i => edges(i))))
+                      Set(0, 1, 2).map(i => edges(i))))
 
     // 4. Same search with no ply limit => same. (Termination test.)
     assert(graphs("main").search(FollowEdges(FindNodes(nfId1),
-					     TrueEF, TrueNF, None)) ==
+                                             TrueEF, TrueNF, None)) ==
       new ResultGraph(Set(0, 1, 3).map(i => nodes(i)),
-		      Set(0, 1, 2).map(i => edges(i))))
+                      Set(0, 1, 2).map(i => edges(i))))
     // TODO(): long linear graph to test ~100-ply. 
   }
 

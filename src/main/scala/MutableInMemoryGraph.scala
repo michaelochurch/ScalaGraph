@@ -58,10 +58,10 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
   def deleteEdge(edgeId:Name):Boolean = {
     edges.get(edgeId) match {
       case Some(edge) => {
-	edgesBySource.remove(edge.source, edge.id)
-	edgesByDest.remove(edge.dest, edge.id)
-	edges -= edgeId
-	true
+        edgesBySource.remove(edge.source, edge.id)
+        edgesByDest.remove(edge.dest, edge.id)
+        edges -= edgeId
+        true
       }
       case None => false
     }
@@ -69,13 +69,13 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
 
   def deleteNode(nodeId:Name):Boolean = {
     if (edgesBySource.lookup(nodeId).isEmpty && 
-	edgesByDest.lookup(nodeId).isEmpty) {
+        edgesByDest.lookup(nodeId).isEmpty) {
       nodes.get(nodeId) match {
-	case Some(node) => {
-	  nodes -= nodeId
-	  true
-	}
-	case None => false
+        case Some(node) => {
+          nodes -= nodeId
+          true
+        }
+        case None => false
       }
     } else false
   }

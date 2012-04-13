@@ -35,7 +35,7 @@ class BaseEdge private (val source:Name, val dest:Name, val payload: Payload, va
   override def toString() = {
     val typeString = this.payload.typ getOrElse "(untyped)"
     "<Edge %s (%s -> %s): %s, %s>".format(this.id, this.source, this.dest, 
-					  typeString, this.payload.data)
+                                          typeString, this.payload.data)
   }
 }
 
