@@ -44,4 +44,7 @@ object BaseNode {
 
   def apply(typ:String, fields:Map[String, String]) =
     new BaseNode(Payload(Option(typ), fields))
+
+  def apply(id:Name, typ:String, fields:Map[String, String]) =
+    new BaseNode(Payload(Option(typ), fields), id)
 }

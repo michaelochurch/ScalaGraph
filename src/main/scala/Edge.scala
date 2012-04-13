@@ -48,7 +48,11 @@ object BaseEdge {
     new BaseEdge(source, dest, payload)
   }
 
-  def apply(source:Name, dest:Name, typ:String, data:Map[String, String] = Map()) = {
+  def apply(source:Name, dest:Name, typ:String, data:Map[String, String]) = {
     new BaseEdge(source, dest, Payload(Option(typ), data))
+  }
+
+  def apply(id:Name, source:Name, dest:Name, typ:String, data:Map[String, String] = Map()) = {
+    new BaseEdge(source, dest, Payload(Option(typ), data), id)
   }
 }
