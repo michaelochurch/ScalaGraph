@@ -8,6 +8,8 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
   private val edgesBySource = new Index[Name, Name]()
   private val edgesByDest = new Index[Name, Name]()
 
+  private val typeIndex = new Index[String, Name]()
+
   def saveToFile(filename:String) = {
     val writer = Serialization.objectWriter(filename)
     try {
@@ -59,11 +61,96 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
     edgesBySource.lookup(nodeId).map(edges(_))
   }
 
+  // TODO(michaelochurch): Field Indexes. People should be able to trim a 
+  // findNodes query by a field index.  
+  private def findNodes(nf:NodeFilter[NodeT]) = {
+    val foundNodes = 
+      nf match {        
+        case TrueNF => nodes.values      // Full-table scan. Generally bad. 
+        case FalseNF => Set.empty
+        case NodeIdIn(ids) => 
+          ids.flatMap(nodes.get)
+        case nt@NodeTypeIn(_) => {
+          val nodeIds = nt.types.flatMap(typ => typeIndex.lookup(typ))
+          nodeIds.flatMap(nodes.get)
+        }
+        case _ => 
+          nodes.values.filter(nf)        // Full-table scan. Generally bad.
+      }
+    new ResultGraph(foundNodes, Set.empty[EdgeT])
+  }
+
+  // Identical to algorithm in ResultGraph.scala (as of 13. April 2012)
+  private def followEdgesFrom(g:ResultGraph[NodeT,EdgeT],
+                              edgeFilter:EdgeFilter[EdgeT],
+                              nodeFilter:NodeFilter[NodeT],
+                              depth:Option[Int]) = {
+    def fail() = {
+      throw new Exception("inconsistent graph")
+    }
+
+    // TODO(michaelochurch): refactor the huge function. 
+    def loop(unexploredNodeIds:Set[Name],
+             exploredNodeIds:Set[Name],
+             allNodes:Set[NodeT],
+             allEdges:Set[EdgeT],
+             depth:Int):ResultGraph[NodeT,EdgeT] = {
+      if (depth == 0 || unexploredNodeIds.isEmpty) {
+        new ResultGraph(allNodes, allEdges)
+      }
+      else {
+        def nodeAndEdgeFilter(edge:EdgeT):Option[(EdgeT, NodeT)] = {
+          if (edgeFilter(edge)) {
+            val node = getNode(edge.dest).getOrElse(fail())
+            if (nodeFilter(node)) {
+              Some((edge, node))
+            } else None          
+          } else None
+        }
+        val outEdgeIds = unexploredNodeIds.flatMap(outEdges(_))
+        val matches = outEdgeIds.flatMap(nodeAndEdgeFilter)
+        val newNodes = matches.map(_._2)
+        val nowExplored = exploredNodeIds ++ unexploredNodeIds
+        loop(newNodes.map(_.id) -- nowExplored, 
+             nowExplored,
+             allNodes ++ newNodes,
+             allEdges ++ matches.map(_._1),
+             depth - 1)
+      }
+    }
+    loop(unexploredNodeIds = g.nodes.keySet, 
+         exploredNodeIds = Set.empty, 
+         allNodes = g.nodes.values.toSet,
+         allEdges = g.edges.values.toSet,
+         depth = depth.getOrElse(-1))
+  }
+
+  private def followEdges(q:Query[NodeT, EdgeT],
+                          edgeFilter:EdgeFilter[EdgeT], 
+                          nodeFilter:NodeFilter[NodeT],
+                          depth:Option[Int]) = {
+    followEdgesFrom(search(q),
+                    edgeFilter, nodeFilter, depth)
+  }
+
+  def search(q:Query[NodeT, EdgeT]):ResultGraph[NodeT, EdgeT] = {
+    q match {
+      case FindNodes(nodeFilter) => findNodes(nodeFilter)
+      case FollowEdges(q, edgeFilter, nodeFilter, depth) => 
+        followEdges(q, edgeFilter, nodeFilter, depth)
+    }
+  }
+
   // addNode and addEdge return the ID for convenience, because some 
   // chains of operations might build a node/edge (with unknown ID).
 
   def addNode(node:NodeT):Name = {
     nodes += (node.id -> node)
+    node.getType match {
+      case Some(typ) => 
+        typeIndex.add(typ, node.id)
+      case None => 
+    }
     node.id
   }
 
@@ -116,10 +203,6 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
 
   def print():Unit = {
     toResultGraph.print()
-  }
-
-  def search(q:Query[NodeT, EdgeT]) = {
-    throw new Exception("not impl!")
   }
 
   override def toString() = {
