@@ -1,7 +1,7 @@
 import scala.collection.mutable
 import TestEase._
 
-class GraphTest[GraphT <: Graph[_, _, GraphT]](empty:GraphT) {
+class GraphTest[GraphT <: Graph[BaseNode, BaseEdge, GraphT]](empty:GraphT) {
   val graphsDir = "src/main/resources"
   TestEase.inTest()
 
@@ -66,8 +66,79 @@ class GraphTest[GraphT <: Graph[_, _, GraphT]](empty:GraphT) {
       assert(graphs("small").getEdge(badId) == None)
     }
 
+    def testOutEdges() = {
+      assert(graphs("small").outEdges(nodeIds(0)) == Set(edges(0), edges(1)))
+      assert(graphs("small").outEdges(nodeIds(1)) == Set(edges(2)))
+      assert(graphs("small").outEdges(nodeIds(3)) == Set())
+    }
+
+    def testInEdges() = {
+      assert(graphs("small").inEdges(nodeIds(0)) == Set(edges(2)))
+      assert(graphs("small").inEdges(nodeIds(3)) == Set(edges(1)))
+      assert(graphs("small").inEdges(nodeIds(4)) == Set())
+    }
+
+    def testSearchNodesOnly() = {
+      // 1. NodeFilter TrueNF matches all nodes.
+      assert(graphs("small").search(FindNodes(TrueNF)) ==
+ 	new ResultGraph(nodes, Set.empty))
+      
+      // 2. NodeFilter FalseNF matches no nodes. 
+      assert(graphs("small").search(FindNodes(FalseNF)) ==
+ 	new ResultGraph(Set.empty, Set.empty))
+
+      // 3. NodeIdIn returns nodes w/ matching IDs.
+      val nfIds = NodeIdIn(Set(1, 2, 4).map(i => nodeIds(i)))
+      assert(graphs("small").search(FindNodes(nfIds)) == 
+	new ResultGraph(Set(1, 2, 4).map(i => nodes(i)), Set.empty))
+
+     // 4. NodeTypeIn returns nodes of matching types. 
+      val nfEven = NodeTypeIn("evenNode")
+      assert(graphs("small").search(FindNodes(nfEven)) ==
+  	new ResultGraph(Set(0, 2, 4).map(i => nodes(i)), Set.empty))
+    }
+
+    def testSearchNodesAndEdges() = {
+       val nfOdd = NodeTypeIn("oddNode")
+       val efEven = EdgeTypeIn("evenEdge")
+      
+       // 1. Odd Nodes |-> Odd Edges => {N1, N3, N0 | E2}
+       assert(graphs("small").search(
+ 	 FollowEdges(FindNodes(nfOdd), efEven)
+       ) == new ResultGraph(Set(0, 1, 3).map(i => nodes(i)),
+ 			    Set(edges(2))))
+
+      // 2. Node N1 |-> all Edges => {N0, N1 | E2}
+      val nfId1 = NodeIdIn(Set(nodeIds(1)))
+      assert(graphs("small").search(FollowEdges(FindNodes(nfId1))) ==
+ 	new ResultGraph(Set(0, 1).map(i => nodes(i)),
+ 			Set(edges(2))))
+
+      // 3. Same search but w/ 2-ply FollowEdges => {N0, N1, N3 | E2, E1, E0}
+      assert(graphs("small").search(
+ 	FollowEdges(FindNodes(nfId1), TrueEF, TrueNF, Some(2))
+      ) == new ResultGraph(Set(0, 1, 3).map(i => nodes(i)),
+			   Set(0, 1, 2).map(i => edges(i))))
+
+      // 4. Same search with no ply limit => same. (Termination test.)
+      assert(graphs("small").search(
+ 	FollowEdges(FindNodes(nfId1), TrueEF, TrueNF, None)
+      ) == new ResultGraph(Set(0, 1, 3).map(i => nodes(i)),
+ 			   Set(0, 1, 2).map(i => edges(i))))
+      
+      // TODO(): Test ~100-ply on linear graph. 
+  }
+
+    def testSearch() = {
+      testSearchNodesOnly()
+      testSearchNodesAndEdges()
+    }
+
     testGetNode()
     testGetEdge()
+    testOutEdges()
+    testInEdges()
+    testSearch()
   }
 
   def go() = {
