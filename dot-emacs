@@ -1,0 +1,4 @@
+(add-to-list 'load-path "/Users/LeTigre/MikeDev/utils/scala-mode")
+(require 'scala-mode-auto)
+
+(setq-default indent-tabs-mode nil)
