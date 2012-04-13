@@ -1,6 +1,8 @@
 import Name.{T => Name}
 import scala.collection.mutable
 
+// DO NOT USE. Too many stubs.
+
 class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, EdgeT, MutableInMemoryGraph[NodeT, EdgeT]] {
   private val nodes = mutable.Map[Name, NodeT]()
   private val edges = mutable.Map[Name, EdgeT]()
