@@ -2,3 +2,4 @@
 (require 'scala-mode-auto)
 
 (setq-default indent-tabs-mode nil)
+(setq-default fill-column 80)
