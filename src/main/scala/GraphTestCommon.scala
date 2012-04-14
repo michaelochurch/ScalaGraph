@@ -95,6 +95,14 @@ class GraphTest[GraphT <: Graph[BaseNode, BaseEdge, GraphT]](empty:GraphT) {
       val nfEven = NodeTypeIn("evenNode")
       assert(graphs("small").search(FindNodes(nfEven)) ==
           new ResultGraph(Set(0, 2, 4).map(i => nodes(i)), Set.empty))
+
+      // 5. NodeFieldEQ functions properly. 
+
+      // 6. NodeField{NE, GT, GE, LT, LE}.
+     
+      // 7. NodeFieldExists, NodeFieldNExists.
+
+      // 8. NFAnd, NFOr, NFXor, NFAndNot, NFNot
     }
 
     def testSearchNodesAndEdges() = {
@@ -125,7 +133,7 @@ class GraphTest[GraphT <: Graph[BaseNode, BaseEdge, GraphT]](empty:GraphT) {
       ) == new ResultGraph(Set(0, 1, 3).map(i => nodes(i)),
                            Set(0, 1, 2).map(i => edges(i))))
       
-      // TODO(): Test ~100-ply on linear graph. 
+      // 5. {1, 10, 100, 500, inf}-ply search of linear graph. 
   }
 
     def testSearch() = {

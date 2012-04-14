@@ -89,7 +89,6 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
       throw new Exception("inconsistent graph")
     }
 
-    // TODO(michaelochurch): refactor the huge function. 
     def loop(unexploredNodeIds:Set[Name],
              exploredNodeIds:Set[Name],
              allNodes:Set[NodeT],
