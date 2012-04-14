@@ -96,13 +96,28 @@ class GraphTest[GraphT <: Graph[BaseNode, BaseEdge, GraphT]](empty:GraphT) {
       assert(graphs("small").search(FindNodes(nfEven)) ==
           new ResultGraph(Set(0, 2, 4).map(i => nodes(i)), Set.empty))
 
-      // 5. NodeFieldEQ functions properly. 
+      // 5. NodeFieldEQ and other comparisons.
+      assert(graphs("small").search(FindNodes(NodeFieldEQ("x", "2"))) ==
+        new ResultGraph(Set(nodes(2)), Set.empty))
 
-      // 6. NodeField{NE, GT, GE, LT, LE}.
+      assert(graphs("small").search(FindNodes(NodeFieldNE("x", "2"))) ==
+        new ResultGraph(Set(0, 1, 3, 4).map(i => nodes(i)), Set.empty))
+
+      assert(graphs("small").search(FindNodes(NodeFieldLT("x", "2"))) ==
+        new ResultGraph(Set(0, 1).map(i => nodes(i)), Set.empty))
+
+      assert(graphs("small").search(FindNodes(NodeFieldLE("x", "2"))) ==
+        new ResultGraph(Set(0, 1, 2).map(i => nodes(i)), Set.empty))
+      
+      assert(graphs("small").search(FindNodes(NodeFieldGT("x", "2"))) ==
+        new ResultGraph(Set(3, 4).map(i => nodes(i)), Set.empty))
+
+      assert(graphs("small").search(FindNodes(NodeFieldGE("x", "2"))) ==
+        new ResultGraph(Set(2, 3, 4).map(i => nodes(i)), Set.empty))
      
-      // 7. NodeFieldExists, NodeFieldNExists.
+      // Also need: NodeFieldExists, NodeFieldNExists.
 
-      // 8. NFAnd, NFOr, NFXor, NFAndNot, NFNot
+      // 6. Logical connectors: NFAnd, NFOr, NFXor, NFNot
     }
 
     def testSearchNodesAndEdges() = {

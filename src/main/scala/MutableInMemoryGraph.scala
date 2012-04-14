@@ -74,6 +74,8 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
           val nodeIds = nt.types.flatMap(typ => typeIndex.lookup(typ))
           nodeIds.flatMap(nodes.get)
         }
+        // TODO(michaelochurch): Avoid FT scans on top-level NFAnd.
+        // Also, NFOr, NFXor should avoid FT if their components don't.
         case _ => 
           nodes.values.filter(nf)        // Full-table scan. Generally bad.
       }
