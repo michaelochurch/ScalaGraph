@@ -121,7 +121,7 @@ class GraphTest[GraphT <: Graph[BaseNode, BaseEdge, GraphT]](empty:GraphT) {
       // 6. Logical connectors: NFAnd, NFOr, NFXor, NFNot
     }
 
-    def testSearchNodesAndEdges() = {
+    def testSimpleTraversals() = {
        val nfOdd = NodeTypeIn("oddNode")
        val efEven = EdgeTypeIn("evenEdge")
       
@@ -149,12 +149,29 @@ class GraphTest[GraphT <: Graph[BaseNode, BaseEdge, GraphT]](empty:GraphT) {
       ) == new ResultGraph(Set(0, 1, 3).map(i => nodes(i)),
                            Set(0, 1, 2).map(i => edges(i))))
       
-      // 5. {1, 10, 100, 500, inf}-ply search of linear graph. 
-  }
+      // 5. {1, 10, 100, 100K, inf}-ply search of linear graph.
+      // Somewhat redundant w.r.t. above, but worth having as an add'l test.
+      val headQ = FindNodes(NodeFieldEQ("x", "0")) : Query[BaseNode, BaseEdge]
+      val resultGraph1 = 
+        graphs("linear").search(FollowEdges(headQ, TrueEF, TrueNF, Some(1)))
+      assert(resultGraph1.nodes.size == 2 && resultGraph1.edges.size == 1)
+      val resultGraph10 = 
+        graphs("linear").search(FollowEdges(headQ, TrueEF, TrueNF, Some(10)))
+      assert(resultGraph10.nodes.size == 11 && resultGraph10.edges.size == 10)
+      val resultGraph100 = 
+        graphs("linear").search(FollowEdges(headQ, TrueEF, TrueNF, Some(100)))
+      assert(resultGraph100.nodes.size == 100 && resultGraph100.edges.size == 99)
+      val resultGraph100k = 
+        graphs("linear").search(FollowEdges(headQ, TrueEF, TrueNF, Some(100000)))
+      assert(resultGraph100k.nodes.size == 100 && resultGraph100k.edges.size == 99)
+      val resultGraphInf = 
+        graphs("linear").search(FollowEdges(headQ, TrueEF, TrueNF, None))
+      assert(resultGraphInf.nodes.size == 100 && resultGraphInf.edges.size == 99)
+    }
 
     def testSearch() = {
       testSearchNodesOnly()
-      testSearchNodesAndEdges()
+      testSimpleTraversals()
     }
 
     testGetNode()
