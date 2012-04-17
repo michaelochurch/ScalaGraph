@@ -1,7 +1,10 @@
+// MemoryGraph.scala
+// Represents an in-memory graph that is fully mutable. 
+
 import Name.{T => Name}
 import scala.collection.mutable
 
-class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, EdgeT, MutableInMemoryGraph[NodeT, EdgeT]] {
+class MemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, EdgeT, MemoryGraph[NodeT, EdgeT]] {
   private val nodes = mutable.Map[Name, NodeT]()
   private val edges = mutable.Map[Name, EdgeT]()
 
@@ -162,7 +165,7 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
 
     // TODO(mike): return a better error.
     if (!nodeExists(sourceId) || !nodeExists(destId))
-      throw new IllegalGraphOperationException("MutableInMemoryGraph.addEdge")
+      throw new IllegalGraphOperationException("MemoryGraph.addEdge")
 
     edgesBySource.add(edge.source, edge.id)
     edgesByDest.add(edge.dest, edge.id)
@@ -190,13 +193,13 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
         case None =>
       }
     } else {
-      throw new IllegalGraphOperationException("MutableInMemoryGraph.deleteNode")
+      throw new IllegalGraphOperationException("MemoryGraph.deleteNode")
     }
   }
 
   def toResultGraph():ResultGraph[NodeT, EdgeT] = {
     if (nodes.size > 1000000 || edges.size > 1000000) {
-      throw new GraphTooLargeException("MutableInMemoryGraph.toResultGraph")
+      throw new GraphTooLargeException("MemoryGraph.toResultGraph")
     } else {
       new ResultGraph(nodes.values, edges.values)
     }
@@ -207,13 +210,13 @@ class MutableInMemoryGraph[NodeT <: Node, EdgeT <: Edge] extends Graph[NodeT, Ed
   }
 
   override def toString() = {
-    "MutableInMemoryGraph: %d nodes, %d edges".format(nodes.size, edges.size)
+    "MemoryGraph: %d nodes, %d edges".format(nodes.size, edges.size)
   }
 }
 
-object MutableInMemoryGraph {
+object MemoryGraph {
   def empty[NodeT <: Node, EdgeT <: Edge]() =
-    new MutableInMemoryGraph[NodeT, EdgeT]()
+    new MemoryGraph[NodeT, EdgeT]()
   
   def basic = empty[BaseNode, BaseEdge] 
 
