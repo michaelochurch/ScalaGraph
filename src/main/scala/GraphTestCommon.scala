@@ -115,7 +115,8 @@ class GraphTest[GraphT <: Graph[BaseNode, BaseEdge, GraphT]](empty:GraphT) {
       assert(graphs("small").search(FindNodes(NodeFieldGE("x", "2"))) ==
         new ResultGraph(Set(2, 3, 4).map(i => nodes(i)), Set.empty))
      
-      // Also need: NodeFieldExists, NodeFieldNExists.
+      // TODO(michaelochurch): Include good test for NodeFieldExists
+      // and NodeFieldNExists.
 
       // 6. Logical connectors: NFAnd, NFOr, NFXor, NFNot
     }

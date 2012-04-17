@@ -1,7 +1,7 @@
 object MakeTestData {
   val targetDir = "src/main/resources"
 
-  def makeSmallGraphs():Unit = {
+  def makeSmallGraph():Unit = {
     val nodeIds = (0 to 4).map(i => Name.forString("small.node.%d".format(i))).toArray
     val edgeIds = (0 to 2).map(i => Name.forString("small.edge.%d".format(i))).toArray
     
@@ -55,7 +55,7 @@ object MakeTestData {
 
   def main(args:Array[String]) = {
     TestEase.inTest()
-    makeSmallGraphs()
+    makeSmallGraph()
     makeLinearGraph()
   }
 }
